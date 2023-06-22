@@ -144,12 +144,18 @@ async def update_time():
                     notif = create_time_notification(guild_data["current_time"])
                     if not channel:
                         channel = guild.system_channel
-                    await channel.send(f"{role.mention} Time update! {notif}")
+                    try:
+                        await channel.send(f"{role.mention} Time update! {notif}")
+                    except:
+                        pass
                 else:
                     notif = create_time_notification(guild_data["current_time"])
                     if not channel:
                         channel = guild.system_channel
-                    await channel.send(f"Time update! {notif}")
+                    try:
+                        await channel.send(f"Time update! {notif}")
+                    except:
+                        pass
 
     for invalid_guild in invalid_guilds:
         del time_data[invalid_guild]
