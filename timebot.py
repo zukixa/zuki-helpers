@@ -181,45 +181,50 @@ async def on_ready():
 @app_commands.describe(timestr="DD/MM/YYYY of until when to calculate.")
 async def timeuntil(interaction: discord.Interaction, timestr: str):
     await interaction.response.defer()
-    json_current_time = load_time_data()[str(interaction.guild_id)]["current_time"]
-    input_date_str = timestr
-    speed = load_time_data()[str(interaction.guild_id)]["speed"]
-    date_format = "%d/%m/%Y"
-    input_datetime = datetime.datetime.strptime(input_date_str, date_format)
-    input_total_days = input_datetime.toordinal()
+    try:
+        json_current_time = load_time_data()[str(interaction.guild_id)]["current_time"]
+        input_date_str = timestr
+        speed = load_time_data()[str(interaction.guild_id)]["speed"]
+        date_format = "%d/%m/%Y"
+        input_datetime = datetime.datetime.strptime(input_date_str, date_format)
+        input_total_days = input_datetime.toordinal()
 
-    current_datetime = datetime.datetime(
-        json_current_time["year"],
-        json_current_time["month"],
-        math.floor(json_current_time["day"]),
-    )
-    current_total_days = (
-        current_datetime.toordinal()
-        + json_current_time["day"]
-        - math.floor(json_current_time["day"])
-    )
+        current_datetime = datetime.datetime(
+            json_current_time["year"],
+            json_current_time["month"],
+            math.floor(json_current_time["day"]),
+        )
+        current_total_days = (
+            current_datetime.toordinal()
+            + json_current_time["day"]
+            - math.floor(json_current_time["day"])
+        )
 
-    # Calculate the difference in days
-    days_difference = input_total_days - current_total_days
-    # Calculate time in minutes needed to reach input date
-    minutes_to_reach_date = days_difference / (speed / 86400)
+        # Calculate the difference in days
+        days_difference = input_total_days - current_total_days
+        # Calculate time in minutes needed to reach input date
+        minutes_to_reach_date = days_difference / (speed / 86400)
 
-    # Convert minutes to Unix epoch timestamp
-    unix_epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
-    timestamp = int(
-        (unix_epoch + datetime.timedelta(minutes=minutes_to_reach_date)).timestamp()
-    )
+        # Convert minutes to Unix epoch timestamp
+        unix_epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
+        timestamp = int(
+            (unix_epoch + datetime.timedelta(minutes=minutes_to_reach_date)).timestamp()
+        )
 
-    # Get current time as Unix epoch timestamp
-    current_timestamp = int(time.time())
+        # Get current time as Unix epoch timestamp
+        current_timestamp = int(time.time())
 
-    # Add current time to calculated timestamp
-    final_timestamp = timestamp + current_timestamp
-    await interaction.followup.send(
-        "Your desired time will be reached at the following time: <t:"
-        + str(final_timestamp)
-        + ">"
-    )
+        # Add current time to calculated timestamp
+        final_timestamp = timestamp + current_timestamp
+        await interaction.followup.send(
+            "Your desired time will be reached at the following time: <t:"
+            + str(final_timestamp)
+            + ">"
+        )
+    except:
+        await interaction.followup.send(
+            "Failed to calculate output, usually because /settime has not been done yet."
+        )
 
 
 @client.tree.command(description="Short explanation of the bot.")
@@ -284,7 +289,9 @@ async def setchannel(interaction: discord.Interaction, channel: discord.TextChan
         save_time_data(time_data)
         await interaction.followup.send(f"Output is now in {channel.name}")
     except:
-        await interaction.followup.send("Failed to change output")
+        await interaction.followup.send(
+            "Failed to change output, usually because /settime has not been done yet."
+        )
 
 
 @client.tree.command(description="Set your RP time! (Enable w/ /toggletime)!")
@@ -345,10 +352,15 @@ async def settime(
 @client.tree.command(description="Grab Server's Time Info.")
 async def timeinfo(interaction: discord.Interaction):
     await interaction.response.defer()
-    data = load_time_data()[str(interaction.guild_id)]
-    if not data:
-        data = "No info found."
-    await interaction.followup.send(data)
+    try:
+        data = load_time_data()[str(interaction.guild_id)]
+        if not data:
+            data = "No info found."
+        await interaction.followup.send(data)
+    except:
+        await interaction.followup.send(
+            "Could not get data. Usually, you need to /settime first!"
+        )
 
 
 @client.tree.command(description="Notify the Bot Owners of an issue.")
