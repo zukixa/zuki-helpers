@@ -72,7 +72,7 @@ async def setup(interaction, channel: discord.TextChannel, direction: str):
 @client.event
 async def on_ready():
     print("hi")
-    act = discord.Activity(name="kuru kuru ～", type=discord.ActivityType.streaming)
+    act = discord.Activity(name="countu countu ～", type=discord.ActivityType.streaming)
     await client.change_presence(status=discord.Status.idle, activity=act)
 
 

@@ -48,18 +48,6 @@ if __name__ == "__main__":
     intents = discord.Intents.all()
     client = MyClient(intents=intents)
 
-
-def total_member_count(client):
-    excluded_guild_id = 110373943822540800
-    members = {
-        m
-        for guild in client.guilds
-        if guild.id != excluded_guild_id
-        for m in guild.members
-    }
-    return len(members)
-
-
 # Load time data from the .json file
 def load_time_data():
     try:
@@ -272,7 +260,7 @@ async def help(interaction: discord.Interaction):
         inline=False,
     )
     embed.set_footer(
-        text=f"Brought to you by @zukixa, running in {len(client.guilds)} servers, making {total_member_count(client)} users happy.",
+        text=f"Brought to you by @zukixa, running in {len(client.guilds)} servers, making >3000 users happy.",
         icon_url="https://cdn.discordapp.com/avatars/325699845031723010/b80a55ef4a3ce5c6cec05d69475a5bf8.png?size=4096",
     )
     await interaction.response.send_message(embed=embed)
