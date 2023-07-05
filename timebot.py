@@ -46,7 +46,11 @@ class MyClient(discord.Client):
 
 if __name__ == "__main__":
     intents = discord.Intents.all()
+    intents.message_content = False
+    intents.presences = False
+    intents.members = False
     client = MyClient(intents=intents)
+
 
 # Load time data from the .json file
 def load_time_data():
