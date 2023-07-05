@@ -21,7 +21,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="Ping Loops"))
 
 
-@tasks.loop(minutes=121)
+@tasks.loop(minutes=122)
 async def ping_loop():
     for channel_id in config["ping_channels"]:
         channel = await bot.fetch_channel(channel_id)
