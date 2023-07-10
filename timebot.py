@@ -76,6 +76,8 @@ def create_time_notification(current_time):
     if month < 1:
         month = 1
     year = current_time["year"]
+    if day == 0:
+        day = 1
     return f"Day {day}, Month {month}, Year {year}"
 
 
@@ -88,7 +90,11 @@ async def update_time():
         if guild_data["is_running"]:
             guild = client.get_guild(int(guild_id))
             channel = client.get_channel(guild_data["channel_id"])
-
+            print(guild_data)
+            try:
+                voice = client.get_channel(guild_data["voice_id"])
+            except:
+                voice = None
             days_in_month = 30
             seconds_per_day = 86400  # 24 * 60 * 60
             added_days = guild_data["speed"] / seconds_per_day
@@ -129,7 +135,10 @@ async def update_time():
 
             if not guild:
                 invalid_guilds.append(guild_id)
-
+            if voice:
+                await voice.edit(
+                    name=create_time_notification(guild_data["current_time"])
+                )
             if notify and guild:
                 if guild_data["role_id"]:
                     role = guild.get_role(guild_data["role_id"])
@@ -215,7 +224,7 @@ async def timeuntil(interaction: discord.Interaction, timestr: str):
         )
     except:
         await interaction.followup.send(
-            "Failed to calculate output, usually because /settime has not been done yet."
+            "Failed to calculate output, usually because /settime has not been done yet, or the time is in the past."
         )
 
 
@@ -251,6 +260,11 @@ async def help(interaction: discord.Interaction):
         value="- Set the channel of the bot's time update output.",
         inline=False,
     )
+    embed.add_field(
+        name="/setvoice [channel]",
+        value="- Set the channel of the bot's time update output, for a voice channel.",
+        inline=False,
+    )
 
     embed.add_field(
         name="/gettime",
@@ -278,6 +292,22 @@ async def setchannel(interaction: discord.Interaction, channel: discord.TextChan
         time_data = load_time_data()
         guild = str(interaction.guild_id)
         time_data[guild]["channel_id"] = int(channel.id)
+        save_time_data(time_data)
+        await interaction.followup.send(f"Output is now in {channel.name}")
+    except:
+        await interaction.followup.send(
+            "Failed to change output, usually because /settime has not been done yet."
+        )
+
+
+@client.tree.command(description="set what channel the voice shall be displayed")
+@app_commands.describe(channel="The channel in which the output shall be at")
+async def setvoice(interaction: discord.Interaction, channel: discord.VoiceChannel):
+    await interaction.response.defer()
+    try:
+        time_data = load_time_data()
+        guild = str(interaction.guild_id)
+        time_data[guild]["voice_id"] = int(channel.id)
         save_time_data(time_data)
         await interaction.followup.send(f"Output is now in {channel.name}")
     except:
