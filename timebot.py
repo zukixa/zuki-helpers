@@ -21,26 +21,9 @@ with open("config.json", "r") as f:
 class MyClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
-        # A CommandTree is a special type that holds all the application command
-        # state required to make it work. This is a separate class because it
-        # allows all the extra state to be opt-in.
-        # Whenever you want to work with application commands, your tree is used
-        # to store and work with them.
-        # Note: When using commands.Bot instead of discord.Client, the bot will
-        # maintain its own tree instead.
         self.tree = app_commands.CommandTree(self)
 
-    # In this basic example, we just synchronize the app commands to one guild.
-    # Instead of specifying a guild to every command, we copy over our global commands instead.
-    # By doing so, we don't have to wait up to an hour until they are shown to the end-user.
     async def setup_hook(self):
-        #    # This copies the global commands over to your guild.
-        #    for guild in self.guilds:
-        #        print(guild.id)
-        #        print(guild.name)
-        # MY_GUILD = discord.Object(id=1090022628946886726)
-        # self.tree.copy_global_to(guild=MY_GUILD)
-        # await self.tree.sync(guild=MY_GUILD)
         await self.tree.sync()
 
 
@@ -67,8 +50,21 @@ def save_time_data(data):
         json.dump(data, f, indent=4)
 
 
-# Create Notification
 def create_time_notification(current_time):
+    month_map = {
+        1: "Jan.",
+        2: "Feb.",
+        3: "Mar.",
+        4: "Apr.",
+        5: "May.",
+        6: "Jun.",
+        7: "Jul.",
+        8: "Aug.",
+        9: "Sep.",
+        10: "Oct.",
+        11: "Nov.",
+        12: "Dec.",
+    }
     day = math.floor(current_time["day"])
     if day < 1:
         day = 1
@@ -78,7 +74,16 @@ def create_time_notification(current_time):
     year = current_time["year"]
     if day == 0:
         day = 1
-    return f"Day {day}, Month {month}, Year {year}"
+    appendix = "th"
+
+    if str(day)[-1] == "1" and day != 11:  # excluding 11
+        appendix = "st"
+    elif str(day)[-1] == "2" and day != 12:  # excluding 12
+        appendix = "nd"
+    elif str(day)[-1] == "3" and day != 13:  # excluding 13
+        appendix = "rd"
+
+    return f"{month_map[month]} {day}{appendix}, {year}"
 
 
 # Update the current role-play time and notify users if necessary
@@ -90,7 +95,6 @@ async def update_time():
         if guild_data["is_running"]:
             guild = client.get_guild(int(guild_id))
             channel = client.get_channel(guild_data["channel_id"])
-            print(guild_data)
             try:
                 voice = client.get_channel(guild_data["voice_id"])
             except:
@@ -98,7 +102,6 @@ async def update_time():
             days_in_month = 30
             seconds_per_day = 86400  # 24 * 60 * 60
             added_days = guild_data["speed"] / seconds_per_day
-            print("Added days: " + str(added_days))
             timedelta_daily = guild_data["notify_interval"] == "daily"
             timedelta_monthly = guild_data["notify_interval"] == "monthly"
             timedelta_yearly = guild_data["notify_interval"] == "yearly"
@@ -124,10 +127,6 @@ async def update_time():
                 guild_data["current_time"]["year"] += 1
                 if timedelta_yearly:
                     notify = True
-            print("hello")
-            print(math.floor(guild_data["current_time"]["day"]))
-            print(initial_day_value)
-            print(timedelta_daily == True)
             if (
                 math.floor(guild_data["current_time"]["day"]) != initial_day_value
             ) and timedelta_daily:
@@ -407,7 +406,7 @@ async def gettime(interaction: discord.Interaction):
 
     if guild in time_data:
         current_time = time_data[guild]["current_time"]
-        time_str = f"Day {int(current_time['day'])}, Month {current_time['month']}, Year {current_time['year']}"
+        time_str = create_time_notification(current_time)
         await interaction.followup.send(f"Current role-play time: {time_str}")
     else:
         await interaction.followup.send("No time data is available for this server.")
