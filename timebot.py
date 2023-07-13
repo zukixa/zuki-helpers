@@ -363,7 +363,6 @@ async def settime(
     time_data[guild]["role_id"] = role.id if role else None
     time_data[guild]["channel_id"] = int(interaction.channel.id)
     time_data[guild]["is_running"] = False
-
     save_time_data(time_data)
     await interaction.followup.send(
         "Time settings updated! Don't forget to toggle-on your time :)"
