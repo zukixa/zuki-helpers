@@ -101,7 +101,7 @@ async def update_time():
                 voice = None
             days_in_month = 30
             seconds_per_day = 86400  # 24 * 60 * 60
-            added_days = guild_data["speed"] / seconds_per_day
+            added_days = float(guild_data["speed"]) / seconds_per_day
             timedelta_daily = guild_data["notify_interval"] == "daily"
             timedelta_monthly = guild_data["notify_interval"] == "monthly"
             timedelta_yearly = guild_data["notify_interval"] == "yearly"
@@ -146,16 +146,16 @@ async def update_time():
                         channel = guild.system_channel
                     try:
                         await channel.send(f"{role.mention} Time update! {notif}")
-                    except:
-                        pass
+                    except Exception as e:
+                         await channel.send(str(e))
                 else:
                     notif = create_time_notification(guild_data["current_time"])
                     if not channel:
                         channel = guild.system_channel
                     try:
                         await channel.send(f"Time update! {notif}")
-                    except:
-                        pass
+                    except Exception as e:
+                         await channel.send(str(e))
 
     for invalid_guild in invalid_guilds:
         del time_data[invalid_guild]
@@ -175,6 +175,20 @@ async def on_ready():
     )
     await client.change_presence(status=discord.Status.idle, activity=act)
     update_time.start()
+
+
+@client.event
+async def on_guild_join(guild: discord.Guild):
+    message = """
+    **Hi! Thank you for inviting me :)**
+    In order to use me, I suggest you use /help ! All is explained there well :)
+
+    Note: In order to set me up properly, you'll need Administrator permissions! /settime only works with such permissions :)
+    """
+    try:
+        await guild.channels[0].send(message)
+    except:
+        pass
 
 
 @client.tree.command(description="Calculate the time needed till X time.")
@@ -264,6 +278,11 @@ async def help(interaction: discord.Interaction):
         value="- Set the channel of the bot's time update output, for a voice channel.",
         inline=False,
     )
+    embed.add_field(
+        name="/remove [channel/role]",
+        value="- Delete current selections for time updates, voice channel updates, or role pings.",
+        inline=False,
+    )
 
     embed.add_field(
         name="/gettime",
@@ -281,6 +300,35 @@ async def help(interaction: discord.Interaction):
         icon_url="https://cdn.discordapp.com/avatars/325699845031723010/b80a55ef4a3ce5c6cec05d69475a5bf8.png?size=4096",
     )
     await interaction.response.send_message(embed=embed)
+
+
+@client.tree.command(description="Remove anything unwanted.")
+@app_commands.describe(object="What to remove.")
+@app_commands.choices(
+    object=[
+        Choice(name="Time Notification Channel", value=1),
+        Choice(name="Time Notification Ping Role", value=2),
+        Choice(name="Voice Channel Update Channel", value=3),
+    ]
+)
+async def remove(interaction: discord.Interaction, object: Choice[int]):
+    await interaction.response.defer()
+    try:
+        time_data = load_time_data()
+        guild = str(interaction.guild.id)
+        if object.value == 1:
+            time_data[guild]["channel_id"] = None
+        elif object.value == 2:
+            time_data[guild]["role_id"] = None
+        elif object.value == 3:
+            time_data[guild]["voice_id"] = None
+        await interaction.followup.send(
+            f"{object.name} has been removed. Any associated function with such has now stopped working."
+        )
+    except:
+        await interaction.followup.send(
+            f"Failed to remove {object.name}, usually because it is not set currently."
+        )
 
 
 @client.tree.command(description="set where the time update output is.")
@@ -444,5 +492,4 @@ async def endtime(interaction: discord.Interaction):
         await interaction.followup.send("No time data is available for this server.")
 
 
-# Make sure to replace "YOUR_BOT_TOKEN" with your actual bot token.
 client.run(config["timetoken"])
