@@ -148,12 +148,7 @@ async def check_bot(interaction: discord.Interaction, bot: Choice[int]):
 
     current_time = time.time()
 
-    if (bot_name != "zuki.risk" and last_seen_status == "idle") or (
-        bot_name == "zuki.risk" and last_seen_status == "online"
-    ):
-        total_up = total_uptime + (current_time - last_status_change_time)
-    else:
-        total_up = total_uptime
+    total_up = total_uptime + (current_time - last_status_change_time)
 
     total_down = current_time - last_status_change_time - total_up
 
