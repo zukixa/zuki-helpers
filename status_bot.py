@@ -142,15 +142,20 @@ async def check_bot(interaction: discord.Interaction, bot: Choice[int]):
     # load the JSON database
     db_data = load_db(db_filepath)
 
+    start_time = 1682373600.0
+
     last_seen_status = db_data[bot_id]["last_seen_status"]
     last_status_change_time = db_data[bot_id]["last_status_change_time"]
     total_uptime = db_data[bot_id]["total_uptime"]
 
     current_time = time.time()
 
-    total_up = total_uptime + (current_time - last_status_change_time)
+    #  total_up = total_uptime + (current_time - last_status_change_time)
 
-    total_down = current_time - last_status_change_time - total_up
+    #  total_down = current_time - last_status_change_time - total_up
+
+    total_up = total_uptime
+    total_down = current_time - start_time - total_uptime
 
     uptime_hours, rem = divmod(total_up, 3600)
     uptime_minutes, uptime_seconds = divmod(rem, 60)
