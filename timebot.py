@@ -147,7 +147,7 @@ async def update_time():
                     try:
                         await channel.send(f"{role.mention} Time update! {notif}")
                     except Exception as e:
-                         await channel.send(str(e))
+                        await channel.send(str(e))
                 else:
                     notif = create_time_notification(guild_data["current_time"])
                     if not channel:
@@ -155,7 +155,7 @@ async def update_time():
                     try:
                         await channel.send(f"Time update! {notif}")
                     except Exception as e:
-                         await channel.send(str(e))
+                        await channel.send(str(e))
 
     for invalid_guild in invalid_guilds:
         del time_data[invalid_guild]
@@ -184,6 +184,7 @@ async def on_guild_join(guild: discord.Guild):
     In order to use me, I suggest you use /help ! All is explained there well :)
 
     Note: In order to set me up properly, you'll need Administrator permissions! /settime only works with such permissions :)
+    After using /settime, don't forget to use /toggletime!!! Otherwise your time won't start :)
     """
     try:
         await guild.channels[0].send(message)
@@ -252,7 +253,7 @@ async def help(interaction: discord.Interaction):
 
     embed.add_field(
         name="/settime [Time per IRL day] [monthly/yearly rate] [start day] [month] [year]\n [Optional: Notification Role]\n",
-        value="- Setup the time management for your server. \n> Time must be denoted in style of `12y` or  `3 months`, days are not supported. \n> Resetting the starting date requires usage of /endtime \n> After setup, you MUST use /toggletime.",
+        value="- Setup the time management for your server. \n> Time must be denoted in style of `12y` or  `3 months`, days are not supported. \n> Resetting the starting date requires usage of /endtime \n> # ***After setup, you MUST use /toggletime.***",
         inline=False,
     )
 
