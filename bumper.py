@@ -18,7 +18,7 @@ async def on_ready():
     for channel_id in config["ping_channels"]:
         # Start ping loop for each configured channel
         ping_loops[channel_id] = ping_loop.start()
-    await bot.change_presence(activity=discord.Game(name="Ping Loops"))
+    await bot.change_presence(activity=discord.Game(name="getting us all banned :>"))
 
 
 @tasks.loop(minutes=122)
@@ -27,7 +27,7 @@ async def ping_loop():
         channel = await bot.fetch_channel(channel_id)
         async for cmd in channel.slash_commands():
             print(cmd)
-            if str(cmd) == "bump":
+            if str(cmd) == "stats":
                 await cmd.__call__()
         await channel.send("pong")
 
