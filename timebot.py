@@ -11,7 +11,6 @@ import typing
 import re
 import datetime
 import math
-from datetime import datetime
 import time
 
 time_data_filename = "time.json"
@@ -87,9 +86,6 @@ def create_time_notification(current_time):
     return f"{month_map[month]} {day}{appendix}, {year}"
 
 
-start_times = {}
-
-
 # Update the current role-play time and notify users if necessary
 @tasks.loop(seconds=60)
 async def update_time():
@@ -103,22 +99,9 @@ async def update_time():
                 voice = client.get_channel(guild_data["voice_id"])
             except:
                 voice = None
-            if guild_id not in start_times:
-                start_times[guild_id] = guild_data["current_time"].copy()
             days_in_month = 30
             seconds_per_day = 86400  # 24 * 60 * 60
-            # added_days = float(guild_data["speed"]) / seconds_per_day
-            elapsed_time = time.time() - time.mktime(
-                datetime.strptime(
-                    f'{start_times[guild_id]["year"]}-{start_times[guild_id]["month"]}-{int(start_times[guild_id]["day"])}',
-                    "%Y-%m-%d",
-                ).timetuple()
-            )
-            total_minutes_passed = elapsed_time / 60  # Seconds to minutes
-            added_days = (
-                float(guild_data["speed"] * total_minutes_passed) / seconds_per_day
-            )
-
+            added_days = float(guild_data["speed"]) / seconds_per_day
             timedelta_daily = guild_data["notify_interval"] == "daily"
             timedelta_monthly = guild_data["notify_interval"] == "monthly"
             timedelta_yearly = guild_data["notify_interval"] == "yearly"
@@ -218,10 +201,10 @@ async def timeuntil(interaction: discord.Interaction, timestr: str):
         input_date_str = timestr
         speed = load_time_data()[str(interaction.guild_id)]["speed"]
         date_format = "%d/%m/%Y"
-        input_datetime = datetime.strptime(input_date_str, date_format)
+        input_datetime = datetime.datetime.strptime(input_date_str, date_format)
         input_total_days = input_datetime.toordinal()
 
-        current_datetime = datetime(
+        current_datetime = datetime.datetime(
             json_current_time["year"],
             json_current_time["month"],
             math.floor(json_current_time["day"]),
@@ -238,7 +221,7 @@ async def timeuntil(interaction: discord.Interaction, timestr: str):
         minutes_to_reach_date = days_difference / (speed / 86400)
 
         # Convert minutes to Unix epoch timestamp
-        unix_epoch = datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
+        unix_epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
         timestamp = int(
             (unix_epoch + datetime.timedelta(minutes=minutes_to_reach_date)).timestamp()
         )
