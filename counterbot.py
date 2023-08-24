@@ -1,5 +1,5 @@
-import discord
-import json
+import discord, re
+import json, asyncio
 import sympy
 from discord import app_commands
 
@@ -11,6 +11,7 @@ class MyClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
+        self.counter_lock = asyncio.Lock()
 
     async def setup_hook(self):
         await self.tree.sync()
@@ -33,8 +34,26 @@ def save_counter(data):
         json.dump(data, f, indent=4)
 
 
-def is_equation_valid(equation, expected_value):
+def is_equation_valid(equation, expected_value, max_value=10**18, max_exponent=100):
     try:
+        # Split equation by operators
+        components = re.split("\+|-|\*|/", equation)
+
+        for component in components:
+            # If the component contains exponentiation
+            if "^" in component:
+                # Extract base and exponent
+                base, exponent = component.split("^")
+                # If base or exponent exceed limits, return False
+                if abs(int(base)) > max_value or abs(int(exponent)) > max_exponent:
+                    return False
+
+        # Extract all numbers from the equation
+        numbers = map(int, re.findall("\d+", equation))
+        # If any number in the equation exceeds max_value, return False
+        if any(abs(number) > max_value for number in numbers):
+            return False
+
         result = sympy.sympify(equation)
         return result == expected_value
     except:
@@ -81,23 +100,24 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    counter_data = load_counter()
-    channel_id = str(message.channel.id)
-    if channel_id in counter_data:
-        data = counter_data[channel_id]
-        direction = data["direction"]
-        current_seq = data["current"]
-        new_seq = get_new_seq(current_seq, direction)
-        if is_equation_valid(message.content, new_seq):
-            await message.add_reaction("✅")
-            data["current"] = new_seq
-        else:
-            await message.add_reaction("❌")
-            await message.channel.send(
-                f"Wrong number! The next number should have been {new_seq}. We are now back at 0."
-            )
-            data["current"] = 0
-        save_counter(counter_data)
+    async with client.counter_lock:
+        counter_data = load_counter()
+        channel_id = str(message.channel.id)
+        if channel_id in counter_data:
+            data = counter_data[channel_id]
+            direction = data["direction"]
+            current_seq = data["current"]
+            new_seq = get_new_seq(current_seq, direction)
+            if is_equation_valid(message.content, new_seq):
+                await message.add_reaction("✅")
+                data["current"] = new_seq
+            else:
+                await message.add_reaction("❌")
+                await message.channel.send(
+                    f"Wrong number! The next number should have been {new_seq}. We are now back at 0."
+                )
+                data["current"] = 0
+            save_counter(counter_data)
 
 
 client.run(config["counterbot"])

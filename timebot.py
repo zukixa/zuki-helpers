@@ -89,6 +89,7 @@ def create_time_notification(current_time):
 # Update the current role-play time and notify users if necessary
 @tasks.loop(seconds=60)
 async def update_time():
+    print("hi")
     time_data = load_time_data()
     invalid_guilds = []
     for guild_id, guild_data in time_data.items():
@@ -97,7 +98,8 @@ async def update_time():
             channel = client.get_channel(guild_data["channel_id"])
             try:
                 voice = client.get_channel(guild_data["voice_id"])
-            except:
+            except Exception as e:
+                print(str(e))
                 voice = None
             days_in_month = 30
             seconds_per_day = 86400  # 24 * 60 * 60
@@ -147,6 +149,7 @@ async def update_time():
                     try:
                         await channel.send(f"{role.mention} Time update! {notif}")
                     except Exception as e:
+                        print(str(e))
                         await channel.send(str(e))
                 else:
                     notif = create_time_notification(guild_data["current_time"])
@@ -155,13 +158,15 @@ async def update_time():
                     try:
                         try:
                             await channel.send(f"Time update! {notif}")
-                        except:
-                            pass  # what
+                        except Exception as e:
+                            print(str(e))
+                    #      pass  # what
                     except Exception as e:
                         try:
                             await channel.send(str(e))
-                        except:
-                            pass  # what
+                        except Exception as e:
+                            print(str(e))
+                    #     pass  # what
 
     for invalid_guild in invalid_guilds:
         del time_data[invalid_guild]
