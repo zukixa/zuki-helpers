@@ -71,6 +71,7 @@ def get_new_seq(current, direction):
     name="setup",
     description="Set up the counting game in a specified channel and direction.",
 )
+@app_commands.default_permissions(administrator=True)
 async def setup(interaction, channel: discord.TextChannel, direction: str):
     await interaction.response.defer()
 

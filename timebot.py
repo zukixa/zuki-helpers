@@ -323,6 +323,7 @@ async def help(interaction: discord.Interaction):
         Choice(name="Voice Channel Update Channel", value=3),
     ]
 )
+@app_commands.default_permissions(manage_roles=True)
 async def remove(interaction: discord.Interaction, object: Choice[int]):
     await interaction.response.defer()
     try:
@@ -345,6 +346,7 @@ async def remove(interaction: discord.Interaction, object: Choice[int]):
 
 @client.tree.command(description="set where the time update output is.")
 @app_commands.describe(channel="The channel in which the output shall be at")
+@app_commands.default_permissions(manage_roles=True)
 async def setchannel(interaction: discord.Interaction, channel: discord.TextChannel):
     await interaction.response.defer()
     try:
@@ -361,6 +363,7 @@ async def setchannel(interaction: discord.Interaction, channel: discord.TextChan
 
 @client.tree.command(description="set what channel the voice shall be displayed")
 @app_commands.describe(channel="The channel in which the output shall be at")
+@app_commands.default_permissions(manage_roles=True)
 async def setvoice(interaction: discord.Interaction, channel: discord.VoiceChannel):
     await interaction.response.defer()
     try:
