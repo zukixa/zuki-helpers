@@ -18,9 +18,9 @@ with open("config.json", "r") as f:
     config = json.load(f)
 
 
-class MyClient(discord.Client):
+class MyClient(discord.AutoShardedClient):
     def __init__(self, *, intents: discord.Intents):
-        super().__init__(intents=intents)
+        super().__init__(intents=intents, shard_count=5)
         self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
