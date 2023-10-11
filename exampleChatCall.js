@@ -73,5 +73,5 @@ main(); //Call the API with this function! You should see the response message i
 //Notice that it's not necessary that zukiCall() is an async function however I've purposely made it
 // one as since the API is rate limited to a certain number of calls per minute,
 // it helps to use an async function inside a setTimeOut() to limit API usage per minute.
-// For example, if you only want responses to be generate every 20 seconds, using async inside a 
-// SetTimeOut() function makes things much easier.
+// For example, if you only want responses to be generated every 20 seconds, using async inside a 
+// setTimeOut() function makes things much easier.
