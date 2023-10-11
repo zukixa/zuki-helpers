@@ -42,7 +42,7 @@ async function zukiCall(userMessage, userName) {
     });
 
     const responseData = await response.json();
-    console.log(responseData); //You can log the JSON response in case you need to debug something).
+    console.log(responseData); //You can log the JSON response in case you need to debug something.
     //Additionally, you can also change response.json() to response.text() for further debugging,
     //although this might break the return statement.
     
