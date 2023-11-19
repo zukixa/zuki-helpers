@@ -112,18 +112,14 @@ async def on_message_delete(message):
         counter_data = await load_counter()
         channel_id = str(message.channel.id)
         if channel_id in counter_data:
+            BOT_USER_ID = 1102325506294153348 # Replace this with your bot's user id
+            limit = 100   # define a limit - Max amount of messages to search through
+            async for msg in message.channel.history(limit=limit):
+                if msg.author.id == BOT_USER_ID and "was deleted" in msg.content:
+                    await msg.delete()
+                    break
             old_msg = f"A message containing the number {counter_data[channel_id]['current']} was deleted."
             await message.channel.send(old_msg)
-            counter_data[channel_id]['current'] -= 1
-            await save_counter(counter_data)
-
-        # Delete previous announcements about deleted messages
-
-        BOT_USER_ID = 1102325506294153348 # Replace this with your bot's user id
-        limit = 100   # define a limit - Max amount of messages to search through
-        async for msg in message.channel.history(limit=limit):
-            if msg.author.id == BOT_USER_ID and "was deleted" in msg.content:
-                await msg.delete()
 
 @client.event
 async def on_message(message):
