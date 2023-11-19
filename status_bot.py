@@ -111,17 +111,17 @@ async def on_presence_update(before, after):
         if after.status == discord.Status.offline:
             bot_data["total_uptime"] += time_diff
             curstat = after.status
-            await channel.send(f"`{name} is offline, undergoing maintenance.`")
+            await channel.send(f"`{name} is offline, undergoing maintenance.` <@325699845031723010>")
 
         elif after.status == discord.Status.idle:
             curstat = after.status
-            await channel.send(f"`{name} is operational :)`")
+            await channel.send(f"`{name} is operational :)` <@325699845031723010>")
 
         else:
             curstat = after.status
-            await channel.send(f"`{name} is starting...`")
+            await channel.send(f"`{name} is starting...` <@325699845031723010>")
             if str(name) != "zuki.ai":
-                await channel.send(f"`{name} is operational :)`")
+                await channel.send(f"`{name} is operational :)` <@325699845031723010>")
 
     # Save the updated JSON database regardless of the if condition
     await save_db(db_filepath, db_data)
