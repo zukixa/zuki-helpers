@@ -100,8 +100,12 @@ async def setup(interaction, channel: discord.TextChannel, direction: Choice[int
 async def on_ready():
     print("hi")
     await client.change_presence(
-        status=discord.Status.idle,activity=discord.CustomActivity(name="ping pong i can count ping pong", emoji="🖥"
-    ))
+        status=discord.Status.idle,
+        activity=discord.CustomActivity(
+            name="ping pong i can count ping pong", emoji="🖥"
+        ),
+    )
+
 
 @client.event
 async def on_message_delete(message):
@@ -112,8 +116,8 @@ async def on_message_delete(message):
         counter_data = await load_counter()
         channel_id = str(message.channel.id)
         if channel_id in counter_data:
-            BOT_USER_ID = 1102325506294153348 # Replace this with your bot's user id
-            limit = 100   # define a limit - Max amount of messages to search through
+            BOT_USER_ID = 1102325506294153348  # Replace this with your bot's user id
+            limit = 100  # define a limit - Max amount of messages to search through
             async for msg in message.channel.history(limit=limit):
                 if msg.author.id == BOT_USER_ID and "was deleted" in msg.content:
                     await msg.delete()
@@ -121,11 +125,22 @@ async def on_message_delete(message):
             old_msg = f"A message containing the number {counter_data[channel_id]['current']} was deleted."
             await message.channel.send(old_msg)
 
+
+def validate_math_expression(expr):
+    try:
+        # this will raise an exception if expr is not a valid mathematical expression
+        sympy.sympify(expr)
+        return True
+    except:
+        return False
+
+
 @client.event
 async def on_message(message):
     if message.author.bot:
         return
-
+    if not validate_math_expression(message.content):
+        return
     async with client.counter_lock:
         counter_data = await load_counter()
         channel_id = str(message.channel.id)
