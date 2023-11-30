@@ -126,12 +126,27 @@ async def on_message_delete(message):
             await message.channel.send(old_msg)
 
 
-def validate_math_expression(expr):
-    try:
-        # this will raise an exception if expr is not a valid mathematical expression
-        sympy.sympify(expr)
+def is_single_symbol(expr):
+    parsed_expr = sympy.sympify(expr)
+    return isinstance(parsed_expr, sympy.Symbol)
+
+def contains_operator(expr):
+    operators = set("+-*/^")
+    if any(op in expr for op in operators):
         return True
-    except:
+    return False
+
+def validate_math_expression(expr):
+    # Check if the expression is just a single word
+    if expr.isalpha() and not contains_operator(expr):
+        return False
+    try:
+        sympy_expr = sympy.sympify(expr)
+        # Check if it's not just a single symbol
+        if is_single_symbol(sympy_expr):
+            return False
+        return True
+    except Exception as e:
         return False
 
 
