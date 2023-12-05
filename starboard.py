@@ -10,8 +10,10 @@ from discord.ext import commands, tasks
 from discord import app_commands
 from discord.app_commands import Choice
 import json
+
 with open("config.json", "r") as f:
     config = json.load(f)
+
 
 def load_starboard_config():
     try:
@@ -128,12 +130,25 @@ async def on_reaction_add(reaction, user):
 async def on_message(message):
     if message.author.id == client.user.id or message.author.bot:
         return
+
     if (
         message.channel.id
         in starboard_config[str(message.guild.id)]["watched_channels"]
         and not starboard_config[str(message.guild.id)]["disable_autoreact"]
     ):
         await message.add_reaction("⭐")
+    # this is purely for zukijourney server application, i could not bother to make another bot just for the code below.
+    # ignore this if you want to use it for your own work !
+    exluded = [1099481191679283250]
+    channel = message.channel
+
+    if channel.id not in exluded:
+        if "discord.gg/" in message.content:
+            await message.delete()
+            await channel.send(
+                f"{message.author.mention} You are not allowed to send discord invites here.",
+                delete_after=5,
+            )
 
 
 @client.tree.command(name="board", description="Set the starboard channel")
