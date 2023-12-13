@@ -112,103 +112,105 @@ async def update_time():
     current_items = batches[current_batch]
     invalid_guilds = []
     for guild_id, guild_data in current_items:
-        if guild_data["is_running"] == "true":
-            print("good morning")
-            days_in_month = 30
-            seconds_per_day = 86400  # 24 * 60 * 60
-            added_days = batch_factor * float(guild_data["speed"]) / seconds_per_day
-            timedelta_daily = guild_data["notify_interval"] == "daily"
-            timedelta_monthly = guild_data["notify_interval"] == "monthly"
-            timedelta_yearly = guild_data["notify_interval"] == "yearly"
-            notify = False
-            # Get the floored day value before adding days
-            initial_day_value = math.floor(guild_data["current_time"]["day"])
+        try:
+            if guild_data["is_running"] == "true":
+                print("good morning")
+                days_in_month = 30
+                seconds_per_day = 86400  # 24 * 60 * 60
+                added_days = batch_factor * float(guild_data["speed"]) / seconds_per_day
+                timedelta_daily = guild_data["notify_interval"] == "daily"
+                timedelta_monthly = guild_data["notify_interval"] == "monthly"
+                timedelta_yearly = guild_data["notify_interval"] == "yearly"
+                notify = False
+                # Get the floored day value before adding days
+                initial_day_value = math.floor(guild_data["current_time"]["day"])
 
-            guild_data["current_time"]["day"] += added_days
-            while guild_data["current_time"]["day"] > days_in_month:
-                guild_data["current_time"]["day"] -= days_in_month
-                guild_data["current_time"]["day"] = math.floor(
-                    guild_data["current_time"][
-                        "day"
-                    ]  # needed to fix possible remainder from month change
-                )
-                guild_data["current_time"]["month"] += 1
-                if timedelta_monthly:
-                    notify = True
+                guild_data["current_time"]["day"] += added_days
+                while guild_data["current_time"]["day"] > days_in_month:
+                    guild_data["current_time"]["day"] -= days_in_month
+                    guild_data["current_time"]["day"] = math.floor(
+                        guild_data["current_time"][
+                            "day"
+                        ]  # needed to fix possible remainder from month change
+                    )
+                    guild_data["current_time"]["month"] += 1
+                    if timedelta_monthly:
+                        notify = True
 
-            months_in_year = 12
-            while guild_data["current_time"]["month"] > months_in_year:
-                guild_data["current_time"]["month"] -= months_in_year
-                guild_data["current_time"]["year"] += 1
-                if timedelta_yearly:
+                months_in_year = 12
+                while guild_data["current_time"]["month"] > months_in_year:
+                    guild_data["current_time"]["month"] -= months_in_year
+                    guild_data["current_time"]["year"] += 1
+                    if timedelta_yearly:
+                        notify = True
+                if (
+                    math.floor(guild_data["current_time"]["day"]) != initial_day_value
+                ) and timedelta_daily:
                     notify = True
-            if (
-                math.floor(guild_data["current_time"]["day"]) != initial_day_value
-            ) and timedelta_daily:
-                notify = True
-            guild = None
-            channel = None
-            voice = None
-            role = None
-            if notify:
-                print("notified")
-                guild = client.get_guild(int(guild_id))
-                if not guild:
-                    guild = await client.fetch_guild(int(guild_id))
-                if not guild:
-                    invalid_guilds.append(guild_id)
-                    continue
-                try:
-                    channel = client.get_channel(guild_data["channel_id"])
-                    if not channel:
-                        channel = await client.fetch_channel(guild_data["channel_id"])
-                    if guild_data.get("voice_id", None):
-                        try:
-                            voice = client.get_channel(guild_data["voice_id"])
-                            if not voice:
-                                voice = await client.fetch_channel(
-                                    guild_data["voice_id"]
-                                )
-                        except Exception as e:
-                            print(str(e))
-                            voice = None
-                        if voice:
-                            await voice.edit(
-                                name=create_time_notification(
-                                    guild_data["current_time"]
-                                )
-                            )
-                    if guild_data.get("role_id", None):
-                        role = guild.get_role(guild_data["role_id"])
-                        if not role:
-                            role = await guild.fetch_role(guild_data["role_id"])
-                        notif = create_time_notification(guild_data["current_time"])
+                guild = None
+                channel = None
+                voice = None
+                role = None
+                if notify:
+                    print("notified")
+                    guild = client.get_guild(int(guild_id))
+                    if not guild:
+                        guild = await client.fetch_guild(int(guild_id))
+                    if not guild:
+                        invalid_guilds.append(guild_id)
+                        continue
+                    try:
+                        channel = client.get_channel(guild_data["channel_id"])
                         if not channel:
-                            channel = guild.system_channel
-                        try:
-                            await channel.send(f"{role.mention} Time update! {notif}")
-                        except Exception as e:
-                            print(str(e))
-                            await channel.send(str(e))
-                    else:
-                        notif = create_time_notification(guild_data["current_time"])
-                        if not channel:
-                            channel = guild.system_channel
-                        try:
+                            channel = await client.fetch_channel(guild_data["channel_id"])
+                        if guild_data.get("voice_id", None):
                             try:
-                                await channel.send(f"Time update! {notif}")
+                                voice = client.get_channel(guild_data["voice_id"])
+                                if not voice:
+                                    voice = await client.fetch_channel(
+                                        guild_data["voice_id"]
+                                    )
                             except Exception as e:
                                 print(str(e))
-                        #      pass  # what
-                        except Exception as e:
+                                voice = None
+                            if voice:
+                                await voice.edit(
+                                    name=create_time_notification(
+                                        guild_data["current_time"]
+                                    )
+                                )
+                        if guild_data.get("role_id", None):
+                            role = guild.get_role(guild_data["role_id"])
+                            if not role:
+                                role = await guild.fetch_role(guild_data["role_id"])
+                            notif = create_time_notification(guild_data["current_time"])
+                            if not channel:
+                                channel = guild.system_channel
                             try:
+                                await channel.send(f"{role.mention} Time update! {notif}")
+                            except Exception as e:
+                                print(str(e))
                                 await channel.send(str(e))
+                        else:
+                            notif = create_time_notification(guild_data["current_time"])
+                            if not channel:
+                                channel = guild.system_channel
+                            try:
+                                try:
+                                    await channel.send(f"Time update! {notif}")
+                                except Exception as e:
+                                    print(str(e))
+                            #      pass  # what
                             except Exception as e:
-                                print(str(e))
-                except:
-                    invalid_guilds.append(guild_id)
-                    #     pass  # what
-
+                                try:
+                                    await channel.send(str(e))
+                                except Exception as e:
+                                    print(str(e))
+                    except:
+                        invalid_guilds.append(guild_id)
+                        #     pass  # what
+        except:
+            invalid_guilds.append(guild_id)
     for invalid_guild in invalid_guilds:
         del time_data[invalid_guild]
     await save_time_data(time_data)
