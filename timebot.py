@@ -3,7 +3,6 @@ import math
 import discord
 from discord.ext import commands, tasks
 import json
-import asyncio
 from discord import app_commands
 import typing
 import re
@@ -464,11 +463,12 @@ async def settime(
             speedTime = num
     time_data = await load_time_data()
     guild = str(interaction.guild_id)
-
+    message = "Time settings overridden! Don't forget to toggle-on your time :)"
     if guild not in time_data:
-        time_data[guild] = {"current_time": {"day": day, "month": month, "year": year}}
+        message = "Time settings updated! Don't forget to toggle-on your time :)"
     # the magic speed calculation
     secpermin = float(speedTime * 1826.4)  # magic constant mon/day -> sec/min
+    time_data[guild] = {"current_time": {"day": day, "month": month, "year": year}}
     time_data[guild]["speed"] = secpermin
     time_data[guild]["notify_interval"] = notify_interval.value.lower()
     time_data[guild]["role_id"] = role.id if role else None
@@ -476,7 +476,7 @@ async def settime(
     time_data[guild]["is_running"] = "false"
     await save_time_data(time_data)
     await interaction.followup.send(
-        "Time settings updated! Don't forget to toggle-on your time :)"
+        content=message
     )
 
 

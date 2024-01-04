@@ -1,15 +1,6 @@
 import discord
-from discord.ext import commands
-from discord.app_commands import Choice
-import math
-import discord
-from discord.ext import commands, tasks
 import json
-import asyncio
-from discord.ext import commands, tasks
 from discord import app_commands
-from discord.app_commands import Choice
-import json
 
 with open("config.json", "r") as f:
     config = json.load(f)

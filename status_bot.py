@@ -1,6 +1,5 @@
 import discord
 import json
-from discord.ext import commands
 from discord.app_commands import Choice
 from discord import app_commands
 import time, aiofiles
