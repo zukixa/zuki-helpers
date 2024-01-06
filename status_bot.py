@@ -15,9 +15,19 @@ CHECK_4 = "1101035453710348339"  # time
 CHECK_5 = "1101000835267301458"  # test
 CHECK_6 = "1116909665738051754"  # star
 CHECK_7 = "1155955452740370585"  # api
-intents = discord.Intents.all()
 
-bot = discord.ext.commands.Bot(command_prefix=".", intents=intents)
+class MyClient(discord.Client):
+    def __init__(self, *, intents: discord.Intents):
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+
+    async def setup_hook(self):
+        await self.tree.sync()
+
+
+if __name__ == "__main__":
+    intents = discord.Intents.all()
+    bot = MyClient(intents=intents)
 checkArray = [CHECK_BOT_ID, CHECK_2, CHECK_3, CHECK_4, CHECK_5, CHECK_6, CHECK_7]
 names = [
     "zuki.ai",
@@ -197,16 +207,6 @@ async def check_bot(interaction: discord.Interaction, bot: Choice[int]):
         f"- Uptime: {uptime_hours}h {uptime_minutes}m {uptime_seconds}s ({uptime_percentage:.2f}%)\n"
         f"- Downtime: {downtime_hours}h {downtime_minutes}m {downtime_seconds}s ({downtime_percentage:.2f}%)"
     )
-
-
-@bot.command()
-async def sync(ctx):
-    print("sync command")
-    if ctx.author.id == 325699845031723010:
-        await bot.tree.sync()
-        await ctx.send("Command tree synced.")
-    else:
-        await ctx.send("You must be the owner to use this command!")
 
 
 bot.run(TOKEN)
