@@ -103,5 +103,11 @@ For more bots, check out the [zukijourney-bots repository](https://github.com/zu
 - [zuki.trivia](https://discord.com/api/oauth2/authorize?client_id=1070246268443557968&permissions=1625846840385&scope=applications.commands%20bot)
 - [zuki.star](https://discord.com/api/oauth2/authorize?client_id=1116909665738051754&permissions=10318726429921&scope=bot%20applications.commands)
 
+# A list of zukijourney wrappers that make the API easier to use:
+
+- https://github.com/ZJ-Wrappers
+
+- Note: If you would like to contribute to the zukijourney wrappers, join the discord server and let the staff know! We would be more than happy to offer guidance and would greatly appreciate any contributions.
+
 For the support server, or get into contact with me -- join the support server! [Over here...](discord.gg/pjcGtjc9BY)
 
