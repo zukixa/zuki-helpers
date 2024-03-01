@@ -453,6 +453,7 @@ async def settime(
 ):
     await interaction.response.defer()
     match = re.findall(r"(\d+(?:\.\d+)?)(\D+)", speed)
+    speedTime = None
     if match:
         num, unit = match[0]
         num = float(num)
@@ -461,6 +462,9 @@ async def settime(
             speedTime = num * 12
         else:
             speedTime = num
+    else:
+        await interaction.followup.send("Not a valid speed. Speed needs to be in format of '1 year' or '2m' type.")
+        return
     time_data = await load_time_data()
     guild = str(interaction.guild_id)
     message = "Time settings overridden! Don't forget to toggle-on your time :)"
