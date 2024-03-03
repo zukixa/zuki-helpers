@@ -35,10 +35,8 @@ if __name__ == "__main__":
 
 async def load_time_data():
     try:
-        # Acquire the lock
-        async with data_lock:
-            async with aiofiles.open(time_data_filename, mode="r") as f:
-                return json.loads(await f.read())
+        async with aiofiles.open(time_data_filename, mode="r") as f:
+            return json.loads(await f.read())
     except Exception as e:
         print(f"Issue in dataload: {str(e)}")
         return None
@@ -46,22 +44,20 @@ async def load_time_data():
 
 async def save_time_data(data):
     try:
-        # Acquire the lock
-        async with data_lock:
-            # Read the current state of the file before overwriting
-            existing_data = await load_time_data()
+        # Read the current state of the file before overwriting
+        existing_data = await load_time_data()
 
-            if existing_data is not None:
-                # Loop through keys in the new data
-                for key, value in data.items():
-                    # Update the existing data with the new data
-                    existing_data[key] = value
-                
-                # At this point, any key not in `data` but present in `existing_data` is preserved
+        if existing_data is not None:
+            # Loop through keys in the new data
+            for key, value in data.items():
+                # Update the existing data with the new data
+                existing_data[key] = value
+            
+            # At this point, any key not in `data` but present in `existing_data` is preserved
 
-            # Write the merged data back to the file
-            async with aiofiles.open(time_data_filename, mode="w") as f:
-                await f.write(json.dumps(existing_data or data, indent=4))
+        # Write the merged data back to the file
+        async with aiofiles.open(time_data_filename, mode="w") as f:
+            await f.write(json.dumps(existing_data or data, indent=4))
     except Exception as e:
         print(f"Issue in datasave: {str(e)}")
 
@@ -117,7 +113,7 @@ def split_into_batches(iterable, n):
 
 
 current_batch = 8
-batch_factor = 1
+batch_factor = 5
 
 
 # Update the current role-play time and notify users if necessary
