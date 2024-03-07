@@ -113,7 +113,20 @@ def split_into_batches(iterable, n):
 
 
 current_batch = 1
-batch_factor = 5
+batch_factor = 1
+def validate_and_format_date(year, month, day):
+    # Adjust the year to have four digits if necessary
+    # If year or day is 0, set it to 1.
+    year = max(1, year)
+    day = max(1, day)
+
+    # Skip or flag dates with negative year, zero month, or day exceeds valid range
+    if 1 <= month <= 12:
+        # Zero-padding month and day to ensure correct string format
+        return f"{year:04d}-{month:02d}-{day:02d}"
+    else:
+        # Handle invalid dates based on your application's needs
+        return None
 
 
 # Update the current role-play time and notify users if necessary
@@ -122,50 +135,89 @@ async def update_time():
     global current_batch
     time_data = await load_time_data()
     guilds_to_run = {k: v for k, v in time_data.items() if v["is_running"] == "true"}
-    batches = list(split_into_batches(guilds_to_run.items(), batch_factor))
-    current_batch = (current_batch + 1) % batch_factor
-    current_items = batches[current_batch]
+   # batches = list(split_into_batches(guilds_to_run.items(), batch_factor))
+   # current_batch = (current_batch + 1) % batch_factor   #---> will probably eventually return depending on ratelimits
+   # current_items = batches[current_batch]
     invalid_guilds = []
-    for guild_id, guild_data in current_items:
+    for guild_id, guild_data in guilds_to_run.items():
         try:
             if guild_data["is_running"] == "true":
                 print("good morning")
                 print('processing guild')
                 print(guild_id)
                 print(guild_data)
-                
+                print('balls1')
                 # Define current datetime from guild_data
-                current_time_str = f"{guild_data['current_time']['year']}-{guild_data['current_time']['month']}-{guild_data['current_time']['day']}"
-                current_datetime = datetime.datetime.strptime(current_time_str, "%Y-%m-%d")
+                # Extract integer and fractional parts of the day
+                try:
+                    # Extracting and handling day values
+                    day_integer = int(guild_data['current_time']['day'])
+                    day_fraction = guild_data['current_time']['day'] - day_integer
 
+                    # Construct the date string
+                    year = guild_data['current_time']['year']
+                    month = guild_data['current_time']['month']
+                    current_time_str = validate_and_format_date(year, month, day_integer)
+                    if not current_time_str:
+                        invalid_guilds.append(guild_id)
+                        continue
+                    # Parse the datetime object
+                    current_datetime = datetime.datetime.strptime(current_time_str, "%Y-%m-%d")
+
+                    # Calculating fractional day in seconds and adding it
+                    fractional_day_in_seconds = day_fraction * 86400
+                    fractional_day_timedelta = datetime.timedelta(seconds=fractional_day_in_seconds)
+                    current_datetime = current_datetime + fractional_day_timedelta
+
+                except Exception as e:
+                    print(f"Error processing date values: {e}")
+
+                print('balls2')
                 # Calculate added time in days
-                added_days = datetime.timedelta(days=(batch_factor * float(guild_data["speed"]) / (24 * 60 * 60)))
-                new_datetime = current_datetime + added_days
-
+                added_secs = datetime.timedelta(seconds=(batch_factor * float(guild_data["speed"])))
+                new_datetime = current_datetime + added_secs
+                # Calculate the fractional day component
+                print('balls3')
+                hours_as_fraction_of_day = new_datetime.hour / 24
+                minutes_as_fraction_of_day = new_datetime.minute / (24 * 60)
+                seconds_as_fraction_of_day = new_datetime.second / (24 * 60 * 60)
+                fractional_day_component = hours_as_fraction_of_day + minutes_as_fraction_of_day + seconds_as_fraction_of_day
+                print('balls4')
                 notify = False
                 # Identify if notification conditions are met
                 if guild_data["notify_interval"] == "daily":
+                    print('balls5')
                     notify = True
                 elif guild_data["notify_interval"] == "monthly" and new_datetime.month != current_datetime.month:
+                    print('balls6')
                     notify = True
                 elif guild_data["notify_interval"] == "yearly" and new_datetime.year != current_datetime.year:
+                    print('balls7')
                     notify = True
-                
+                print(f'old day: {float(int(new_datetime.day))}')
+                print(f'new day: {float(int(new_datetime.day)) + float(fractional_day_component)}')
                 # Update guild_data with new date
                 guild_data["current_time"]["year"] = new_datetime.year
                 guild_data["current_time"]["month"] = new_datetime.month
-                guild_data["current_time"]["day"] = new_datetime.day
+                guild_data["current_time"]["day"] = float(int(new_datetime.day)) + float(fractional_day_component)
+                time_data[guild_id] = guild_data
+                # or maybe await save_time_data(time_data) here as well?
+            #    await save_time_data(time_data) too often
                 guild = None
                 channel = None
                 voice = None
                 role = None
                 if notify:
-                    guild = await client.fetch_guild(int(guild_id))
+                    guild = client.get_guild(int(guild_id))
+                    if not guild:
+                        guild = await client.fetch_guild(int(guild_id))
                     if not guild:
                         invalid_guilds.append(guild_id)
                         continue
                     try:
-                        channel = await client.fetch_channel(guild_data["channel_id"])
+                        channel = client.get_channel(guild_data['channel_id'])
+                        if not channel:
+                            channel = await client.fetch_channel(guild_data["channel_id"])
                         if not channel:
                             invalid_guilds.append(guild_id)
                             continue
@@ -469,8 +521,14 @@ async def settime(
     else:
         await interaction.followup.send("Not a valid speed. Speed needs to be in format of '1 year' or '2m' type.")
         return
-    if day > 31 or month > 12 or month < 1 or day < 1:
-        await interaction.followup.send("Invalid day/month input")
+    if day > 28 or day < 1:
+        await interaction.followup.send("Invalid day input.")
+        return
+    if month > 12 or month < 1:
+        await interaction.followup.send("Invalid month input")
+        return
+    if year < 1 or year > 9000:
+        await interaction.followup.send("Invalid year input")
         return
     time_data = await load_time_data()
     guild = str(interaction.guild_id)
