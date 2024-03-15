@@ -113,7 +113,7 @@ def split_into_batches(iterable, n):
 
 
 current_batch = 1
-batch_factor = 1
+batch_factor = 5
 def validate_and_format_date(year, month, day):
     # Adjust the year to have four digits if necessary
     # If year or day is 0, set it to 1.
@@ -135,18 +135,16 @@ async def update_time():
     global current_batch
     time_data = await load_time_data()
     guilds_to_run = {k: v for k, v in time_data.items() if v["is_running"] == "true"}
-   # batches = list(split_into_batches(guilds_to_run.items(), batch_factor))
-   # current_batch = (current_batch + 1) % batch_factor   #---> will probably eventually return depending on ratelimits
-   # current_items = batches[current_batch]
+    batches = list(split_into_batches(guilds_to_run.items(), batch_factor))
+    current_batch = (current_batch + 1) % batch_factor   #---> will probably eventually return depending on ratelimits
+    current_items = batches[current_batch]
     invalid_guilds = []
-    for guild_id, guild_data in guilds_to_run.items():
+    for guild_id, guild_data in current_items:
         try:
             if guild_data["is_running"] == "true":
-                print("good morning")
                 print('processing guild')
                 print(guild_id)
-                print(guild_data)
-                print('balls1')
+
                 # Define current datetime from guild_data
                 # Extract integer and fractional parts of the day
                 try:
@@ -172,27 +170,27 @@ async def update_time():
                 except Exception as e:
                     print(f"Error processing date values: {e}")
 
-                print('balls2')
+
                 # Calculate added time in days
                 added_secs = datetime.timedelta(seconds=(batch_factor * float(guild_data["speed"])))
                 new_datetime = current_datetime + added_secs
                 # Calculate the fractional day component
-                print('balls3')
+
                 hours_as_fraction_of_day = new_datetime.hour / 24
                 minutes_as_fraction_of_day = new_datetime.minute / (24 * 60)
                 seconds_as_fraction_of_day = new_datetime.second / (24 * 60 * 60)
                 fractional_day_component = hours_as_fraction_of_day + minutes_as_fraction_of_day + seconds_as_fraction_of_day
-                print('balls4')
+
                 notify = False
                 # Identify if notification conditions are met
                 if guild_data["notify_interval"] == "daily":
-                    print('balls5')
+
                     notify = True
                 elif guild_data["notify_interval"] == "monthly" and new_datetime.month != current_datetime.month:
-                    print('balls6')
+
                     notify = True
                 elif guild_data["notify_interval"] == "yearly" and new_datetime.year != current_datetime.year:
-                    print('balls7')
+
                     notify = True
                 print(f'old day: {float(int(new_datetime.day))}')
                 print(f'new day: {float(int(new_datetime.day)) + float(fractional_day_component)}')
@@ -202,7 +200,7 @@ async def update_time():
                 guild_data["current_time"]["day"] = float(int(new_datetime.day)) + float(fractional_day_component)
                 time_data[guild_id] = guild_data
                 # or maybe await save_time_data(time_data) here as well?
-            #    await save_time_data(time_data) too often
+                await save_time_data(time_data)# too often
                 guild = None
                 channel = None
                 voice = None
@@ -492,7 +490,6 @@ async def setvoice(interaction: discord.Interaction, channel: discord.VoiceChann
 )
 @app_commands.choices(
     notify_interval=[
-        Choice(name="Update on each IRP Day passed.", value="daily"),
         Choice(name="Update on each IRP Month passed.", value="monthly"),
         Choice(name="Update on each IRP Year passed.", value="yearly"),
     ]
