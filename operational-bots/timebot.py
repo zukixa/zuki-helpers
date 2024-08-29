@@ -1,7 +1,7 @@
 from discord.app_commands import Choice
 import math
 import discord
-from discord.ext import commands, tasks
+from discord.ext import tasks
 import json
 from discord import app_commands
 import typing
@@ -10,9 +10,9 @@ import datetime
 import time
 import aiofiles, asyncio
 
-time_data_filename = "/home/kira/k_zuki.helpers/time.json"
+time_data_filename = "./time.json"
 data_lock = asyncio.Lock()
-with open("/home/kira/k_zuki.helpers/config.json", "r") as f:
+with open("./config.json", "r") as f:
     config = json.load(f)
 
 

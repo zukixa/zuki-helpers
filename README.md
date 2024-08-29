@@ -1,101 +1,102 @@
 # zuki-helpers
 
-Here's a list of bots, both operational and unoperational, which are part of the zukijourney ecosystem. These are all open-source via the GPLv3 License! :)
+A collection of open-source Discord bots for the zukijourney ecosystem, licensed under GPLv3.
 
-# zuki.time
+## Operational Bots
 
-Time management bot for roleplay servers. Allows progression of in-character time.
+(Bots who are in operation for the zukijourney ecosystem.)
 
-## Commands
+### zuki.time
 
-- `/settime [Time per IRL day] [monthly/yearly rate] [start day] [month] [year]`: Set up the time settings for the server. Time must be in format like `12y` or `3 months`. After setup, you must use `/toggletime` to start progression.
+Time management bot for roleplay servers, allowing progression of in-character time.
+Get the v2.0 version here: [With this link!](https://discord.com/api/oauth2/authorize?client_id=1101035453710348339&permissions=19218435669072&scope=bot%20applications.commands)
 
-- `/timeinfo`: Get the current time settings.
+#### Commands:
 
-- `/endtime`: Reset the time settings.
+- `/settime`: Set up time settings for the server
+- `/timeinfo`: Get current time settings
+- `/endtime`: Reset time settings
+- `/setchannel`: Set channel for time updates
+- `/setvoice`: Set voice channel for time updates
+- `/remove`: Remove configured channel, voice channel, or ping role
+- `/gettime`: Get current in-character time
+- `/timeuntil`: Calculate when a given date will be reached
+- `/toggletime`: Pause/unpause time progression
+- `/help`: Show help embed
+- `/report`: Report an issue to the developer
 
-- `/setchannel [channel]`: Set the channel for time updates.
+### zuki.starboard
 
-- `/setvoice [channel]`: Set the voice channel for time updates.
+Showcases highly starred/reacted messages.
+Get the v1.0 version here: [With this link!](https://discord.com/api/oauth2/authorize?client_id=1116909665738051754&permissions=10318726429921&scope=bot%20applications.commands)
 
-- `/remove [channel/role]`: Remove configured channel, voice channel, or ping role.
+#### Commands:
 
-- `/gettime`: Get the current in-character time.
+- `/board`: Set the starboard channel
+- `/watch`: Add a channel to watch for stars
+- `/delwatch`: Remove a watched channel
+- `/minstar`: Set minimum stars for starboard
+- `/autoreact`: Toggle bot's auto reactions on messages
+- `/help`: Show help message
 
-- `/timeuntil [DD/MM/YYYY]`: Calculate when a given date will be reached.
+### zuki.count
 
-- `/toggletime`: Pause/unpause time progression.
+Counting game bot where users take turns incrementing/decrementing numbers.
+Get the v1.0 version here: [With this link!](https://discord.com/api/oauth2/authorize?client_id=1102325506294153348&permissions=1479750581360&scope=bot%20applications.commands)
 
-- `/help`: Show help embed.
+#### Commands:
 
-- `/report [message]`: Report an issue to the developer.
+- `/setup`: Set up counting in a channel
 
-# zuki.starboard
+### zuki.status
 
-Starboard bot to showcase highly starred/reacted messages.
+Status bot for monitoring uptime of other bots (owner-only).
+Only available on zukijourney, obviously! [Join here.](https://discord.gg/zukijourney)
 
-## Commands
+#### Commands:
 
-- `/board [channel]`: Set the starboard channel.
+- `/stats`: Get uptime stats for a bot
 
-- `/watch [channel]`: Add a channel to watch for stars.
+## Example Bots
 
-- `/delwatch [channel]`: Remove a watched channel.
-
-- `/minstar [number]`: Set minimum stars for starboard. Default is 2.
-
-- `/autoreact`: Toggle bot's auto reactions on messages.
-
-- `/help`: Show help message.
-
-# zuki.count
-
-Counting game bot. Users take turns incrementing/decrementing numbers.
-
-## Commands
-
-- `/setup [channel] [forward/backward]`: Set up counting in a channel.
-
-# zuki.status
-
-Status bot for monitoring uptime of other bots. Owner-only.
-
-## Commands
-
-- `/stats [bot]`: Get uptime stats for a bot.
-
-  Here is documentation for the inactive bots:
-
-## Inactive Bots
+(Bots who once, or never, have been in the zukijourney ecosystem, but have value!)
 
 ### prez.py Bot
 
-A simple bot to compare US state populations.
+Compares US state populations.
 
-**Commands:**
+#### Commands:
 
-- `!compare_population [state1] [state2]`: Compare the populations of two US states.
+- `!compare_population`: Compare populations of two US states
 
 ### AI Chat Bot
 
-A bot that uses the OpenAI API to have conversations.
+Uses OpenAI API for conversations.
 
-**Commands:**
+#### Commands:
 
-- `/ask [question]`: Ask the AI a question.
+- `/ask`: Ask the AI a question
 
 ### Disboard Bumper Bot
 
-A selfbot that does the funny thing for disboard. **Obviously, only an educational purposes example.**
+A selfbot for Disboard (educational purposes only).
 
-**Commands:**
+#### Commands:
 
-- `$start`: Start ping loop in current channel.
-- `$stop`: Stop ping loop in current channel.
-- `$inv [url]`: Join/bump server via invite URL.
+- `$start`: Start ping loop in current channel
+- `$stop`: Stop ping loop in current channel
+- `$inv`: Join/bump server via invite URL
 
-# Essential Links, Credits, and the other bots!
-For more bots, check out the [zukijourney-bots repository](https://github.com/zukixa/zukijourney-bots), the [zuki-risk repository](https://github.com/zukixa/zuki-risk), the [zuki-trivia repositiory](https://github.com/zukixa/zuki-trivia), or simply invite one of the talked-about bots involved below!
+## Additional Bots and Resources
+
+For more bots, check out:
+
+- [zukijourney-bots overview](https://github.com/zukixa/zukijourney-bots)
+- [zuki-risk repository](https://github.com/zukixa/zuki-risk)
+- [zuki-trivia repository](https://github.com/zukixa/zuki-trivia)
+
+## Bot Invites
+
 - [zuki.gm](https://discord.com/api/oauth2/authorize?client_id=1055209868899913788&permissions=8&scope=bot%20applications.commands)
 - [zuki.time](https://discord.com/api/oauth2/authorize?client_id=1101035453710348339&permissions=19218435669072&scope=bot%20applications.commands)
 - [zuki.count](https://discord.com/api/oauth2/authorize?client_id=1102325506294153348&permissions=1479750581360&scope=bot%20applications.commands)
@@ -103,11 +104,6 @@ For more bots, check out the [zukijourney-bots repository](https://github.com/zu
 - [zuki.trivia](https://discord.com/api/oauth2/authorize?client_id=1070246268443557968&permissions=1625846840385&scope=applications.commands%20bot)
 - [zuki.star](https://discord.com/api/oauth2/authorize?client_id=1116909665738051754&permissions=10318726429921&scope=bot%20applications.commands)
 
-# A list of zukijourney wrappers that make the API easier to use:
+## Support
 
-- https://github.com/ZJ-Wrappers
-
-- Note: If you would like to contribute to the zukijourney wrappers, join the discord server and let the staff know! We would be more than happy to offer guidance and would greatly appreciate any contributions.
-
-For the support server, or get into contact with me -- join the support server! [Over here...](discord.gg/pjcGtjc9BY)
-
+Join our [support server](https://discord.gg/pjcGtjc9BY) for assistance or to get in touch with the developers.
